@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def gen_weighted_normalized_array(bus_df, random_uniform=True):
@@ -98,9 +99,32 @@ def iterate_weighted_bus_load_calculations_over_zones(sdhz_df, utility_distribut
     return pd.concat(results_dfs)
 
 
-def allocate_load(sdhz_csv, bus_csv, output_filename):
+def allocate_load(sdhz_df, bus_df, SDH_profiles_df, output_filename):
+
+    result = iterate_weighted_bus_load_calculations_over_zones(sdhz_df, SDH_profiles_df, bus_df)
+
+    return result
+
+
+def generate_bus_profiles(bus_df, load_df, random_uniform=True):
+    """
+    REPLACES: gen_weighted_bus_class_allocations()
+
+    For each bus in the bus_df, this function will generate a
+    value that corresponds to the proporition of total load by each
+    load class that is distributed to that bus.
+    """
+    results = []
     
-    input_df = pd.read_csv(sdhz_csv)
-    bus_df = pd.read_csv(bus_csv)
-    result = iterate_weighted_bus_load_calculations_over_zones(input_df, SDH_profiles_df, bus_df)
-    result.to_csv(output_filename, index=False)
+    for zone in bus_df.zone.unique():
+
+        zone_results = {}
+        
+        for load_class in load_df['load_class'].unique():
+            zone_results[load_class] = gen_weighted_normalized_array(bus_df[bus_df['zone']==zone], random_uniform)
+        
+        result = pd.DataFrame(zone_results).set_index(np.array(list(bus_df[bus_df['zone']==zone]['bus_id']))).transpose()
+        result_df = result.reset_index().melt('index').rename(columns={'index':'load_class', 'variable':'bus_number', 'value': 'class_bus_allocation'})
+        results.append(result_df)
+
+    return pd.concat(results)
