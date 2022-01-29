@@ -57,7 +57,7 @@ current_SDH_profile = SDH_profiles_df[(SDH_profiles_df['Season']==profile_season
 
 profile_fig = px.area(current_SDH_profile, x="hour", y='p_total_load', color='Load Class Name')
 profile_fig.update_layout(height=600, width=1200)
-st.plotly_chart(profile_fig, use_container_width=False, sharing="streamlit")
+st.plotly_chart(profile_fig, use_container_width=True, sharing="streamlit")
 
 
 
@@ -83,7 +83,7 @@ zone_load_fig = px.line(current_zone_data,
 	                    color = 'Zone Name')
 
 zone_load_fig.update_layout(height=600, width=1200)
-st.plotly_chart(zone_load_fig, use_container_width=False, sharing="streamlit")
+st.plotly_chart(zone_load_fig, use_container_width=True, sharing="streamlit")
 
 
 st.header('Custom allocation')
